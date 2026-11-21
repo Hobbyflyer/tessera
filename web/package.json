@@ -13,7 +13,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run check && rm -rf ../screen_manager/app/static/assets && vite build",
+    "build": "npm run check && node --input-type=module -e \"import { rmSync } from 'node:fs'; rmSync('../screen_manager/app/static/assets', { recursive: true, force: true });\" && vite build",
     "check": "npm run lint && vue-tsc --noEmit && vue-tsc --noEmit -p tsconfig.tests.json",
     "lint": "eslint .",
     "preview": "vite preview",

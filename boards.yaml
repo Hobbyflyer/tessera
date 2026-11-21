@@ -77,6 +77,11 @@ waveshare7:
   name: Waveshare
   model: ESP32-S3-Touch-LCD-7
   status: experimental
+  # The stock backlight is the CH422G expander's EXIO2 (on/off only). A hardware
+  # mod wires GPIO6 or GPIO16 to the backlight control pad for PWM dimming
+  # (docs/WAVESHARE7.md). The first value is the stock behaviour.
+  choices:
+    BACKLIGHT_PWM_PIN: [EXIO2, GPIO6, GPIO16]
 
 waveshare4b:
   file: waveshare-esp32s3-4b.yaml

@@ -1,3 +1,7 @@
+## Unreleased
+
+- **Waveshare 7 inch: built-in backlight PWM mod.** New screen now offers the backlight mod as a choice: stock (CH422G EXIO2), or GPIO6/GPIO16 for PWM dimming after the hardware mod wire is soldered. The shared package builds the LEDC output and keeps the enable line high automatically; standby, night mode and alert flashes are enabled with the mod.
+
 ## 0.4.99 (firmware 0.62.0)
 
 - **A screen draws every change whole again.** On the ESP32-P4 boards (the Guition and Waveshare 10.1 and 7 inch, the reTerminal D1001, the Tab5) a card that opened, a change of Dark mode or a page could reach the glass only in part since 0.4.98: the frame or a few blocks turned while the rest of the page stayed as it was. The pictures of whole pages these screens kept to show a page sooner (0.4.98) read the screen's memory in a way that could throw away what had just been drawn. They are gone; a page turn is drawn as before 0.4.98, which takes a moment longer on a 10-inch, and the memory they held goes to covers and cameras again.

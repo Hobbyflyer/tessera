@@ -39,7 +39,9 @@ class PackageTests(unittest.TestCase):
                 # And a board with a Wi-Fi fallback hotspot its QR code (firmware 0.38.0); a board with 4 MB of flash has none.
                 hotspot = ['packages/features/hotspot.yaml'] if profiles.hotspot(board) else []
                 self.assertEqual(sorted(checker.included(ROOT / name)),
-                                 sorted(['packages/core.yaml', str(profiles.BOARDS[board].relative_to(ROOT)), *hotspot]), name)
+                                 sorted(['packages/core.yaml',
+                                         str(profiles.BOARDS[board].relative_to(ROOT)).replace('\\', '/'),
+                                         *hotspot]), name)
 
     def test_the_published_entry_takes_everything_from_github(self):
         for board in BOARDS:
@@ -164,7 +166,7 @@ class PackageTests(unittest.TestCase):
             # a battery's voltage, a board's audio parts and their wiring, packages/hardware/parts/) and the
             # hardware a screen's own YAML may change on the board that has it (the pins of an ESP32-P4's Wi-Fi link
             # and touch bus, hardware/esp32p4-c6.yaml).
-            self.assertTrue(all(re.match(r'(TOUCH_AFFINE_|TOUCH_CAL_|TOUCH_CONTROLLER$|EDGE_SWIPE_|ALERT_\w*IMAGE|CAMERA_|BATTERY_|AUDIO_|DISPLAY_MODEL$|DISPLAY_DATA_RATE$|FLASH_SIZE$|DISPLAY_INVERT_COLORS$|BACKLIGHT_FREQUENCY$|HOSTED_SDIO_FREQUENCY$|HOSTED_\w+_PIN$|TOUCH_SDA$|TOUCH_SCL$)', n) for n in own), f'{board}: {sorted(own)}')
+            self.assertTrue(all(re.match(r'(TOUCH_AFFINE_|TOUCH_CAL_|TOUCH_CONTROLLER$|EDGE_SWIPE_|ALERT_\w*IMAGE|CAMERA_|BATTERY_|AUDIO_|DISPLAY_MODEL$|DISPLAY_DATA_RATE$|FLASH_SIZE$|DISPLAY_INVERT_COLORS$|BACKLIGHT_FREQUENCY$|BACKLIGHT_PWM_PIN(_SUFFIX)?$|BACKLIGHT_ALWAYS_ON_SUFFIX$|HOSTED_SDIO_FREQUENCY$|HOSTED_\w+_PIN$|TOUCH_SDA$|TOUCH_SCL$)', n) for n in own), f'{board}: {sorted(own)}')
 
 
 class BoardRules(unittest.TestCase):

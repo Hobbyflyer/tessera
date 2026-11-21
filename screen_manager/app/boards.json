@@ -3851,7 +3851,13 @@
   "can_standby": false,
   "catalog": {
    "calibrate": false,
-   "choices": {},
+   "choices": {
+    "BACKLIGHT_PWM_PIN": [
+     "EXIO2",
+     "GPIO6",
+     "GPIO16"
+    ]
+   },
    "inch": 7.0,
    "model": "ESP32-S3-Touch-LCD-7",
    "name": "Waveshare",
@@ -10690,7 +10696,13 @@
   "can_standby": false,
   "catalog": {
    "calibrate": false,
-   "choices": {},
+   "choices": {
+    "BACKLIGHT_PWM_PIN": [
+     "EXIO2",
+     "GPIO6",
+     "GPIO16"
+    ]
+   },
    "inch": 7.0,
    "model": "ESP32-S3-Touch-LCD-7",
    "name": "Waveshare",
@@ -13411,7 +13423,13 @@
   "can_standby": false,
   "catalog": {
    "calibrate": false,
-   "choices": {},
+   "choices": {
+    "BACKLIGHT_PWM_PIN": [
+     "EXIO2",
+     "GPIO6",
+     "GPIO16"
+    ]
+   },
    "inch": 7.0,
    "model": "ESP32-S3-Touch-LCD-7",
    "name": "Waveshare",

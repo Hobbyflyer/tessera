@@ -1,0 +1,6 @@
+# ESP Screens - stock backlight for the Waveshare ESP32-S3-Touch-LCD-7.
+#
+# Intentionally empty: the stock backlight output is defined in
+# packages/hardware/waveshare-ch422g.yaml (CH422G expander EXIO2). This file
+# exists only so the conditional include in packages/boards/waveshare-esp32s3-7.yaml
+# has a target when BACKLIGHT_PWM_PIN is EXIO2.

@@ -300,7 +300,14 @@
     }
   },
   "editor": {
-    "installer": {},
+    "installer": {
+      "choice": {
+        "BACKLIGHT_PWM_PIN": "Backlight PWM pin"
+      },
+      "choice_hint": {
+        "BACKLIGHT_PWM_PIN": "Stock uses the CH422G expander (no dimming). Choose GPIO6 or GPIO16 only after the backlight mod wire is soldered to that pin."
+      }
+    },
     "tile": {
       "controls": {
         "tall_hint": "",

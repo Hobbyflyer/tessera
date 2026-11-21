@@ -1,0 +1,27 @@
+# ESP Screens - backlight PWM mod for the Waveshare ESP32-S3-Touch-LCD-7.
+#
+# A hardware modification wires the backlight control pad to a free GPIO
+# (GPIO16 on the RS485 connector, or GPIO6 on the sensor connector). This file
+# replaces the CH422G expander's on/off backlight line with a real LEDC PWM
+# output on that pin, while keeping the expander line high so the boost
+# converter stays powered. Loaded by packages/boards/waveshare-esp32s3-7.yaml
+# when BACKLIGHT_PWM_PIN is not EXIO2.
+substitutions:
+  BACKLIGHT_DIMMABLE: "true"
+  CAN_STANDBY: "true"
+
+output:
+  - id: !remove gpio_backlight_pwm
+  - platform: ledc
+    id: gpio_backlight_pwm
+    pin: ${BACKLIGHT_PWM_PIN}
+    frequency: 1000Hz
+    min_power: 40%
+    zero_means_zero: true
+
+switch:
+  - platform: output
+    id: backlight_enable
+    output: backlight_line
+    restore_mode: ALWAYS_ON
+    internal: true

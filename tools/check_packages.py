@@ -36,7 +36,7 @@ SHARED_BLOCK_LINES = 6
 
 
 def included(path):
-    return [str(p.relative_to(ROOT)) for p in profiles.packages_of(path)]
+    return [str(p.relative_to(ROOT)).replace('\\', '/') for p in profiles.packages_of(path)]
 
 
 def fail(message):
@@ -57,7 +57,7 @@ def used_names(text):
 
 def own_blocks(path):
     """A board file's top-level sections, and the items of its lists, as text without comments: what it carries."""
-    text = without_comments(re.sub(r'^substitutions:\n(.*?)(?=^[a-z_0-9]+:|\Z)', '', path.read_text(), count=1,
+    text = without_comments(re.sub(r'^substitutions:\n(.*?)(?=^[a-z_0-9]+:|\Z)', '', path.read_text(encoding='utf-8'), count=1,
                                    flags=re.M | re.S))
     blocks = {}
     for section in re.finditer(r'^([a-z_0-9]+):\n(.*?)(?=^[a-z_0-9]+:|\Z)', text, re.M | re.S):
@@ -105,7 +105,7 @@ def main():
     boards = profiles.BOARDS
     for board in boards:
         entries = [name for name, b in profiles.ENTRIES.items() if b == board]
-        wanted = {'packages/core.yaml', str(boards[board].relative_to(ROOT))}
+        wanted = {'packages/core.yaml', str(boards[board].relative_to(ROOT)).replace('\\', '/')}
         # A board with a Wi-Fi fallback hotspot also takes its QR code (features/hotspot.yaml, firmware 0.38.0).
         if profiles.hotspot(board):
             wanted.add('packages/features/hotspot.yaml')
@@ -119,7 +119,7 @@ def main():
                 if not (ROOT / file).exists():
                     fail(f'{name} includes a file that does not exist: {file}')
     for path in sorted((ROOT / 'packages').rglob('*.yaml')):
-        text = without_comments(path.read_text())
+        text = without_comments(path.read_text(encoding='utf-8'))
         for needle, why in (('!secret', 'a secret'), ('type: local', 'a local component path')):
             if needle in text:
                 fail(f'{path.relative_to(ROOT)} carries {why} ({needle})')
@@ -134,7 +134,7 @@ def main():
     # the build and the API look fine. Code a board or a feature runs at the start is a hook substitution of the core's
     # lambda (BOOT_TOUCH), or a component with a setup of its own (components/flash_layout).
     for path in sorted((ROOT / 'packages').rglob('*.yaml')):
-        block = re.search(r'^esphome:\n(.*?)(?=^[a-zA-Z_]+:|\Z)', without_comments(path.read_text()), re.M | re.S)
+        block = re.search(r'^esphome:\n(.*?)(?=^[a-zA-Z_]+:|\Z)', without_comments(path.read_text(encoding='utf-8')), re.M | re.S)
         if path != profiles.CORE and block and re.search(r'^  on_boot:', block[1], re.M):
             fail(f'{path.relative_to(ROOT)} has an esphome: on_boot: of its own, which would replace the core\'s: '
                  f'use a hook substitution of the core\'s lambda, or a component')
@@ -148,16 +148,16 @@ def main():
         if len(looks) != 1:
             fail(f'{path.relative_to(ROOT)} includes {len(looks)} looks; a board has exactly one (packages/looks/)')
         for file in chain:
-            text = without_comments(file.read_text())
+            text = without_comments(file.read_text(encoding='utf-8'))
             missing = used_names(text) - defined
             if missing:
                 fail(f'{path.relative_to(ROOT)}: {file.relative_to(ROOT)} uses {sorted(missing)}, which neither the board, '
                      f'its look and features nor the core define')
 
     # What the core and the features own stays theirs.
-    core_ids = set(re.findall(r'(?m)^\s+(?:- )?id: (setting_rotation|screen_lvgl)$', profiles.CORE.read_text()))
+    core_ids = set(re.findall(r'(?m)^\s+(?:- )?id: (setting_rotation|screen_lvgl)$', profiles.CORE.read_text(encoding='utf-8')))
     for path in sorted((ROOT / 'packages' / 'boards').glob('*.yaml')):
-        own = without_comments(path.read_text())
+        own = without_comments(path.read_text(encoding='utf-8'))
         for name in core_ids:
             if re.search(r'(?m)^\s+(?:- )?id: ' + name + '$', own):
                 fail(f'{path.relative_to(ROOT)} defines {name}, which packages/core.yaml owns for every board')
@@ -169,7 +169,7 @@ def main():
         entry = profiles.PROFILES[list(boards).index(board)]
         ids = []
         for file in profiles.files(entry):
-            block = re.search(r'^i2c:\n(.*?)(?=^[a-zA-Z_]+:|\Z)', without_comments(file.read_text()), re.M | re.S)
+            block = re.search(r'^i2c:\n(.*?)(?=^[a-zA-Z_]+:|\Z)', without_comments(file.read_text(encoding='utf-8')), re.M | re.S)
             if block:
                 ids += re.findall(r'(?m)^\s*(?:- )?id: ([a-z_0-9]+)$', block[1])
         if ids and 'touch_bus' not in ids and board not in OWN_BUS_NAME:
@@ -179,7 +179,7 @@ def main():
     # The boot steps are the core's. ESPHome joins two on_boot lists but lets a list replace one trigger whole, so a
     # board's own on_boot threw away the core's boot block: the Waveshare 4B up to firmware 0.3.9 never took a layout.
     for path in sorted((ROOT / 'packages' / 'boards').glob('*.yaml')):
-        if re.search(r'(?m)^  on_boot:', without_comments(path.read_text())):
+        if re.search(r'(?m)^  on_boot:', without_comments(path.read_text(encoding='utf-8'))):
             fail(f'{path.relative_to(ROOT)} has its own esphome: on_boot:, which replaces the boot block of packages/core.yaml')
 
     # A board file holds what is its own.
@@ -267,8 +267,8 @@ def main():
     # Nothing the shared files define is dead.
     shared = [profiles.CORE, *sorted((ROOT / 'packages' / 'looks').glob('*.yaml')),
               *sorted((ROOT / 'packages' / 'features').glob('*.yaml'))]
-    everywhere = '\n'.join(without_comments(p.read_text()) for p in (ROOT / 'packages').rglob('*.yaml'))
-    everywhere += '\n'.join(without_comments(p.read_text()) for p in ROOT.glob('*.yaml'))
+    everywhere = '\n'.join(without_comments(p.read_text(encoding='utf-8')) for p in (ROOT / 'packages').rglob('*.yaml'))
+    everywhere += '\n'.join(without_comments(p.read_text(encoding='utf-8')) for p in ROOT.glob('*.yaml'))
     read = used_names(everywhere) | READ_BY_TOOLS
     for path in shared:
         dead = set(profiles.substitutions_of(path)) - read

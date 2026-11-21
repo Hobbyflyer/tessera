@@ -61,7 +61,7 @@ def orientations(values):
 def section_metrics(values):
     """The band of a section's title in the glass's pixels (module_sections.h band, title_top) and the font's room above
     its capitals: the inset is the grid's gap (the panel's padding) plus a card's own padding."""
-    core = (profiles.ROOT / 'packages/core.yaml').read_text()
+    core = (profiles.ROOT / 'packages/core.yaml').read_text(encoding='utf-8')
     font, size = profiles.ROOT / font_metrics.font_file(core, 'label'), int(values['FONT_LABEL_SIZE'])
     inset = int(values['GRID_GAP_Y']) + int(values['TILE_PAD'])
     ink = font_metrics.ink_top(font, size)
@@ -71,7 +71,7 @@ def section_metrics(values):
 
 def alert_lines(values):
     """The line heights of the alert card's two fonts on this board, which its layout needs (title and subtitle)."""
-    core = profiles.CORE.read_text()
+    core = profiles.CORE.read_text(encoding='utf-8')
     return {'title_line': font_metrics.line_height(profiles.ROOT / font_metrics.font_file(core, 'headline'),
                                                    int(values['FONT_HEADLINE_SIZE'])),
             'line': font_metrics.line_height(profiles.ROOT / font_metrics.font_file(core, 'sublabel_big'),
@@ -105,7 +105,7 @@ def catalog_of(board, values, lying):
                              'then at least one other')
         choices[key] = options
     chain = profiles.chain(profiles.BOARDS[board])
-    text = '\n'.join(path.read_text() for path in chain)
+    text = '\n'.join(path.read_text(encoding='utf-8') for path in chain)
     touch = re.search(r'(?m)^touchscreen:\n\s*- platform: (\w+)', text)
     # A board's extras (docs/SETTINGS.md, "A board's own settings"): the entities of its files, by the name ESPHome gives
     # them in an id ("Wake when moved" is wake_when_moved), that the app shows under Screen settings. One the board's files
@@ -133,7 +133,7 @@ def chip_of(board):
     """
     found = None
     for path in profiles.chain(profiles.BOARDS[board]):
-        block = re.search(r'(?m)^esp32:[ \t]*\n((?:[ \t]+.*\n|[ \t]*\n)*)', path.read_text())
+        block = re.search(r'(?m)^esp32:[ \t]*\n((?:[ \t]+.*\n|[ \t]*\n)*)', path.read_text(encoding='utf-8'))
         variant = re.search(r'(?m)^[ \t]+variant:[ \t]*"?(\w+)"?', block[1]) if block else None
         if variant:
             found = variant[1].lower()
@@ -296,7 +296,7 @@ def shapes():
 def main():
     text = json.dumps(shapes(), indent=1, sort_keys=True) + '\n'
     if '--check' in sys.argv:
-        current = OUT.read_text() if OUT.exists() else ''
+        current = OUT.read_text(encoding='utf-8') if OUT.exists() else ''
         if current != text:
             print(f'{OUT.relative_to(profiles.ROOT)} is out of date; run tools/generate_board_shapes.py')
             return 1

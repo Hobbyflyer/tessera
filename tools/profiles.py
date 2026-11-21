@@ -25,7 +25,7 @@ CORE = ROOT / 'packages/core.yaml'
 # ESP Screens knows a board by and names its file under packages/boards/. A screen installed from ESP Screens builds
 # from packages/<key>.yaml over GitHub, and a build from a checkout from checkout/<key>.yaml (checkout/README.md).
 # Adding a board is one entry there (docs/ADDING_A_BOARD.md).
-CATALOG = yaml.safe_load((ROOT / 'boards.yaml').read_text())
+CATALOG = yaml.safe_load((ROOT / 'boards.yaml').read_text(encoding='utf-8'))
 BOARD_TABLE = tuple((board, entry['file'], f'checkout/{board}.yaml') for board, entry in CATALOG.items())
 BOARDS = {board: ROOT / 'packages/boards' / file for board, file, _ in BOARD_TABLE}
 # The names the entry files are known by: the checkout profiles in the order above, then the published packages.
@@ -56,7 +56,7 @@ def board_of(name):
 
 def packages_of(path, *, all_variants=False):
     """The files a file's `packages:` block includes, in its order, resolved against that file's folder."""
-    block = re.search(r'^packages:\n(.*?)(?=^[a-z_0-9]+:|\Z)', Path(path).read_text(), re.M | re.S)
+    block = re.search(r'^packages:\n(.*?)(?=^[a-z_0-9]+:|\Z)', Path(path).read_text(encoding='utf-8'), re.M | re.S)
     if not block:
         return []
     includes = re.findall(r'!include (\S+)', block[1])
@@ -97,7 +97,7 @@ def flash_mb(board):
     substitution (the Waveshare 4.3's FLASH_SIZE, a choice of New screen) is the board file's own value of it."""
     found = 4
     for path in chain(BOARDS[board]):
-        block = re.search(r'(?m)^esp32:[ \t]*\n((?:[ \t]+.*\n|[ \t]*\n)*)', path.read_text())
+        block = re.search(r'(?m)^esp32:[ \t]*\n((?:[ \t]+.*\n|[ \t]*\n)*)', path.read_text(encoding='utf-8'))
         block = [None, resolve(block[1], board_values(board))] if block and '${' in block[1] else block
         size = re.search(r'(?m)^  flash_size:[ \t]*"?(\d+)MB"?', block[1]) if block else None
         if size:
@@ -145,7 +145,7 @@ def battery(board):
     """Whether a screen of this board has a battery the top bar can show (firmware 0.41.0, docs/BATTERY.md): one of its
     files has a sensor in Home Assistant's `battery` device class, which the firmware finds itself
     (runtime_tiles::find_battery). A screen with a battery of its own, in its Override YAML, says so in its hello."""
-    return any(re.search(r'^\s+device_class: battery\s*$', path.read_text(), re.M) for path in chain(BOARDS[board]))
+    return any(re.search(r'^\s+device_class: battery\s*$', path.read_text(encoding='utf-8'), re.M) for path in chain(BOARDS[board]))
 
 
 def features(board):
@@ -157,7 +157,7 @@ def features(board):
     sys.path.insert(0, str(ROOT / 'screen_manager/app'))
     import plugin_manifest
     files = list(chain(BOARDS[board]))
-    text = '\n'.join(path.read_text() for path in files)
+    text = '\n'.join(path.read_text(encoding='utf-8') for path in files)
     named = {key for path in files for key in substitutions_of(path)} | set(re.findall(r'(?m)^([a-z][a-z0-9_]*):', text))
     return [name for name, (domain, ident) in plugin_manifest.FEATURES.items()
             if (ident in named if domain is None else re.search(rf'^\s+(?:- )?id: {ident}\s*$', text, re.M))]
@@ -170,12 +170,12 @@ def files(name):
 
 
 def text(name):
-    return '\n'.join(path.read_text() for path in files(name))
+    return '\n'.join(path.read_text(encoding='utf-8') for path in files(name))
 
 
 def substitutions_of(path):
     """The `substitutions:` block of one file as written, block scalars included."""
-    return substitutions_in(Path(path).read_text())
+    return substitutions_in(Path(path).read_text(encoding='utf-8'))
 
 
 def substitutions_in(text):
@@ -318,5 +318,5 @@ def glyphs(source, font):
 def merged(name):
     """Closer to what ESPHome builds: the chain's files without their substitutions blocks, every ${NAME} filled in.
     For a check that counts things, so a hook's definition in a board or feature file is not counted next to its use."""
-    without = [re.sub(r'^substitutions:\n(.*?)(?=^[a-z_0-9]+:|\Z)', '', path.read_text(), count=1, flags=re.M | re.S) for path in files(name)]
+    without = [re.sub(r'^substitutions:\n(.*?)(?=^[a-z_0-9]+:|\Z)', '', path.read_text(encoding='utf-8'), count=1, flags=re.M | re.S) for path in files(name)]
     return resolve('\n'.join(without), substitutions(name))

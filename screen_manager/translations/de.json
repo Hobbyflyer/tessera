@@ -3616,12 +3616,14 @@
       "choice": {
         "DISPLAY_MODEL": "Display-Controller",
         "FLASH_SIZE": "Flash-Speicher",
-        "BOARD_VARIANT": "Board"
+        "BOARD_VARIANT": "Board",
+        "BACKLIGHT_PWM_PIN": "Backlight PWM pin"
       },
       "choice_hint": {
         "DISPLAY_MODEL": "Nimm zuerst den ersten. Nimm den anderen, wenn der Bildschirm schwarz bleibt oder Rauschen oder ein verzerrtes Bild zeigt.",
         "FLASH_SIZE": "Die meisten dieser Boards haben 16 MB. Nimm 8 MB, wenn der Bildschirm nach der Installation schwarz bleibt und immer wieder neu startet.",
-        "BOARD_VARIANT": "Nimm das Board, das du hast. Auf dem gelben Board ohne Gehäuse landet ein Tippen oben links sonst unten rechts."
+        "BOARD_VARIANT": "Nimm das Board, das du hast. Auf dem gelben Board ohne Gehäuse landet ein Tippen oben links sonst unten rechts.",
+        "BACKLIGHT_PWM_PIN": "Stock uses the CH422G expander (no dimming). Choose GPIO6 or GPIO16 only after the backlight mod wire is soldered to that pin."
       },
       "choice_option": {
         "BOARD_VARIANT": {

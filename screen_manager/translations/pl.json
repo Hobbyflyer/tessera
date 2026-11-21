@@ -3616,12 +3616,14 @@
       "choice": {
         "DISPLAY_MODEL": "Kontroler wyświetlacza",
         "FLASH_SIZE": "Pamięć flash",
-        "BOARD_VARIANT": "Płytka"
+        "BOARD_VARIANT": "Płytka",
+        "BACKLIGHT_PWM_PIN": "Backlight PWM pin"
       },
       "choice_hint": {
         "DISPLAY_MODEL": "Zacznij od pierwszego. Wybierz drugi, gdy ekran pozostaje czarny albo pokazuje szum lub zniekształcony obraz.",
         "FLASH_SIZE": "Większość tych płytek ma 16 MB. Wybierz 8 MB, gdy ekran po instalacji pozostaje czarny i ciągle uruchamia się od nowa.",
-        "BOARD_VARIANT": "Wybierz tę, którą masz. Na żółtej płytce bez obudowy dotknięcie w lewym górnym rogu trafiłoby inaczej w prawy dolny."
+        "BOARD_VARIANT": "Wybierz tę, którą masz. Na żółtej płytce bez obudowy dotknięcie w lewym górnym rogu trafiłoby inaczej w prawy dolny.",
+        "BACKLIGHT_PWM_PIN": "Stock uses the CH422G expander (no dimming). Choose GPIO6 or GPIO16 only after the backlight mod wire is soldered to that pin."
       },
       "choice_option": {
         "BOARD_VARIANT": {

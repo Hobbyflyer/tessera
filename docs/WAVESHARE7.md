@@ -23,8 +23,9 @@ Use the native USB connector for USB Serial/JTAG logs; the separate USB-to-UART 
 - Camera tiles, full-screen snapshots, live tile pictures, camera alerts and media artwork use the shared PSRAM implementation.
   Their operation on this board still needs physical verification. They are periodically refreshed images, not video playback.
 - The unmodified backlight only switches on or off. The experimental profile keeps it on: no dimming, standby, night mode or alert flashes.
-  The 4.3-inch board had brownouts on wake; that does not establish the same fault on this model. Standby remains disabled until tested.
-  A board whose backlight has been rewired does dim: see [Dimming with the backlight mod](#dimming-with-the-backlight-mod).
+  The 4.3-inch board had brownouts on wake; that does not establish the same fault on this model. Standby remains disabled on the stock board.
+  A board whose backlight has been rewired to GPIO6 or GPIO16 can dim and use standby: choose the pin in **New screen**, or see
+  [Dimming with the backlight mod](#dimming-with-the-backlight-mod) for the wiring.
 - GT911 reports pixel coordinates, with no resistive calibration. The existing touch filter and action guard remain in use.
 - LVGL uses a 12% draw buffer to leave internal RAM for networking and tile widgets.
 
@@ -36,46 +37,38 @@ which can then drive the backlight with PWM. Both pins in use are reachable with
 GPIO6 on the sensor connector, or GPIO16 on the RS485 connector.
 See the [community thread](https://community.home-assistant.io/t/esp32-s3-7inch-capacitive-touch-display-adjust-brightness/771030/10) for the pad and the wiring.
 
-The firmware needs no new release for this. Every screen installed by Tessera keeps a small YAML file of its own that is
-loaded after the shared package and survives app updates. Open the screen, press `···`, choose **Override YAML** (advanced)
-and enter this, with `GPIO16` replaced by the pin the wire is soldered to:
-
-```yaml
-substitutions:
-  BACKLIGHT_DIMMABLE: "true"
-
-output:
-  - id: !remove gpio_backlight_pwm
-  - platform: ledc
-    id: gpio_backlight_pwm
-    pin: GPIO16
-    frequency: 1000Hz
-    min_power: 40%
-    zero_means_zero: true
-
-switch:
-  - platform: output
-    id: backlight_enable
-    output: backlight_line
-    restore_mode: ALWAYS_ON
-    internal: true
-```
-
-Then press **Save & check**, which validates the complete profile, and **Update firmware** to rebuild and install.
+When you create the screen in Tessera, choose **Waveshare · 7 inch** and pick **GPIO6** or **GPIO16** under
+**Backlight PWM pin**. The shared package then builds the LEDC output and keeps the CH422G enable line high automatically.
+Press **Update firmware** to install.
 
 - The PWM output takes over the id the shared backlight already uses, so the light, the brightness setting and every
   script stay as they are and reach a dimmer instead of a switch.
-- The switch keeps EXIO2 high, which the panel needs to light at all. It stays out of Home Assistant.
+- The internal switch keeps EXIO2 high, which the panel needs to light at all.
 - `min_power` maps the whole brightness setting onto the duty range the LED driver actually lights at. One board went dark
-  below roughly 40 %; raise or lower the figure until the lowest setting is as dim as the board can go.
+  below roughly 40 %; raise or lower the figure in **Override YAML** until the lowest setting is as dim as the board can go.
   `zero_means_zero` keeps a level of zero completely dark.
 - From firmware 0.2.99 a screen reports what it can do (the **Screen features** sensor), so Tessera shows the
   brightness row for a modified board instead of reading it from its own table per board.
-- Standby and night mode stay switched off on this board (`CAN_STANDBY`). With the mod the boost converter behind the LEDs
-  stays powered and only the duty falls to zero, so the 4.3-inch brownout cannot occur in the same way, but that has not
-  been measured. Adding `CAN_STANDBY: "true"` to the `substitutions:` of the same override turns standby and night
-  back on. From app 0.2.131 that also brings the **Wake** and **Sleep** buttons and the standby and night settings back
-  in Home Assistant; press **Update firmware** once after adding it.
+- With the mod the boost converter behind the LEDs stays powered and only the duty falls to zero, so the 4.3-inch brownout
+  cannot occur in the same way. Standby, night mode, the **Wake** and **Sleep** buttons, and alert backlight flashes are
+  enabled automatically when a PWM pin is chosen.
+
+### Changing the pin or tuning min_power
+
+Every screen installed by Tessera keeps a small YAML file of its own that is loaded after the shared package and survives
+app updates. To use a different pin, or to tune `min_power`, open the screen, press `···`, choose **Override YAML** (advanced)
+and enter:
+
+```yaml
+substitutions:
+  BACKLIGHT_PWM_PIN: "GPIO16"
+
+output:
+  - id: !extend gpio_backlight_pwm
+    min_power: 40%
+```
+
+Then press **Save & check** and **Update firmware**.
 
 Reported working on a board revision 1.1 with 8 MB flash by [@Cjdavidson](https://github.com/MaxGramser/homeassistant_espscreen/issues/22), who measured the mod and the dimming range.
 

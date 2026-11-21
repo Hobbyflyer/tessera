@@ -2,7 +2,8 @@
 # ESP32-S3, 8/16 MB flash, 8 MB octal PSRAM, RGB display, GT911 touch and CH422G expander.
 # Hardware reference: https://docs.waveshare.com/ESP32-S3-Touch-LCD-7
 # Not the 7B or 7C. No physical acceptance yet: see docs/WAVESHARE7.md.
-# The standard look at 133 dpi: 4 x 4 landscape, 2 x 7 portrait. The backlight stays on, with no dimming or standby.
+# The standard look at 133 dpi: 4 x 4 landscape, 2 x 7 portrait. The stock backlight stays on, with no dimming or
+# standby; a hardware mod to GPIO6 or GPIO16 enables both (docs/WAVESHARE7.md).
 #
 # A board file is the board's hardware, the facts the shared tree takes from it (its glass and its grid), and the
 # features it has; docs/PROFILES.md says how the files of a screen fit together.
@@ -12,9 +13,11 @@ packages:
   look: !include ../looks/standard.yaml
   touch: !include ../features/capacitive-touch.yaml
   backlight: !include ../features/backlight.yaml
-  # Experimental: standby and night stay unavailable until physical wake tests pass. Brownouts on the 4.3-inch
-  # board do not prove a fault on this panel.
-  backlight_always_on: !include ../features/backlight-always-on.yaml
+  # Standby and night stay unavailable on the stock board (the CH422G backlight line also enables the boost
+  # converter; switching it on from dark browned the 4.3-inch board out). A hardware mod to a PWM pin keeps the
+  # enable line high and only lowers duty, so the constraints below are disabled for the modded choice.
+  backlight_always_on: !include ../features/backlight-always-on${BACKLIGHT_ALWAYS_ON_SUFFIX}.yaml
+  backlight_output: !include ../hardware/parts/waveshare7-backlight${BACKLIGHT_PWM_PIN_SUFFIX}.yaml
   camera: !include ../features/camera.yaml
   self_test: !include ../features/self-test.yaml
 
@@ -46,6 +49,12 @@ substitutions:
 
   # Set by hand when the home key came (firmware 0.2.100); the look would give 27
   FONT_ICON_HOME_SIZE: "26"
+
+  # Backlight hardware choice (boards.yaml). EXIO2 uses the CH422G expander's EXIO2 line (on/off only); GPIO6 or GPIO16
+  # selects the PWM mod, which keeps EXIO2 high and drives the backlight from the chosen GPIO.
+  BACKLIGHT_PWM_PIN: "EXIO2"
+  BACKLIGHT_PWM_PIN_SUFFIX: '${ "" if BACKLIGHT_PWM_PIN == "EXIO2" else "-mod" }'
+  BACKLIGHT_ALWAYS_ON_SUFFIX: '${ "" if BACKLIGHT_PWM_PIN == "EXIO2" else "-disabled" }'
 
 # ============================================================
 # No need to edit below this line.

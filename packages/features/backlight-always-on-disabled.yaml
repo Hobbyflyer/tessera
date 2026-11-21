@@ -1,0 +1,6 @@
+# ESP Screens - placeholder when a board's backlight can safely dim to zero.
+#
+# Intentionally empty: a modded backlight keeps its enable line powered and only
+# lowers PWM duty, so the constraints in backlight-always-on.yaml do not apply.
+# Loaded by packages/boards/waveshare-esp32s3-7.yaml when BACKLIGHT_PWM_PIN is
+# not EXIO2.

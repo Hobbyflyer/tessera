@@ -3616,12 +3616,14 @@
       "choice": {
         "DISPLAY_MODEL": "Controlador do ecrã",
         "FLASH_SIZE": "Memória flash",
-        "BOARD_VARIANT": "Placa"
+        "BOARD_VARIANT": "Placa",
+        "BACKLIGHT_PWM_PIN": "Backlight PWM pin"
       },
       "choice_hint": {
         "DISPLAY_MODEL": "Comece pelo primeiro. Escolha o outro se o ecrã ficar preto ou mostrar ruído ou uma imagem distorcida.",
         "FLASH_SIZE": "A maioria destas placas tem 16 MB. Escolha 8 MB se o ecrã ficar preto após a instalação e reiniciar uma e outra vez.",
-        "BOARD_VARIANT": "Escolha a que tem. Na placa amarela sem caixa, um toque no canto superior esquerdo iria parar ao canto inferior direito."
+        "BOARD_VARIANT": "Escolha a que tem. Na placa amarela sem caixa, um toque no canto superior esquerdo iria parar ao canto inferior direito.",
+        "BACKLIGHT_PWM_PIN": "Stock uses the CH422G expander (no dimming). Choose GPIO6 or GPIO16 only after the backlight mod wire is soldered to that pin."
       },
       "choice_option": {
         "BOARD_VARIANT": {

@@ -30,6 +30,7 @@ KNOBS = {
     'waveshare4b': ('BACKLIGHT_FREQUENCY',),
     'tab5': ('DISPLAY_MODEL',),
     'waveshare43': ('FLASH_SIZE',),
+    'waveshare7': ('BACKLIGHT_PWM_PIN',),
 }
 
 
@@ -86,7 +87,9 @@ class Overrides(unittest.TestCase):
             own = profiles.BOARDS[board].read_text()
             for knob in knobs:
                 self.assertIn(knob, values, f'{board} does not offer {knob}')
-                self.assertIn('${' + knob + '}', own, f'{board} offers {knob} but no part of it reads it')
+                # A choice is read directly (${NAME}) or inside a conditional expression (${ ... NAME ... }).
+                self.assertTrue('${' + knob + '}' in own or re.search(r'\$\{[^}]*\b' + knob + r'\b', own),
+                                f'{board} offers {knob} but no part of it reads it')
 
 
 if __name__ == '__main__':

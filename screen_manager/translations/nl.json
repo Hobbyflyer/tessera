@@ -3165,12 +3165,14 @@
       "choice": {
         "DISPLAY_MODEL": "Displaycontroller",
         "FLASH_SIZE": "Flashgeheugen",
-        "BOARD_VARIANT": "Bord"
+        "BOARD_VARIANT": "Bord",
+        "BACKLIGHT_PWM_PIN": "Backlight PWM pin"
       },
       "choice_hint": {
         "DISPLAY_MODEL": "Begin met de eerste. Kies de andere als het scherm zwart blijft of ruis of een verminkt beeld laat zien.",
         "FLASH_SIZE": "De meeste van deze borden hebben 16 MB. Kies 8 MB als het scherm na de installatie zwart blijft en steeds opnieuw start.",
-        "BOARD_VARIANT": "Kies het bord dat je hebt. Op het gele bord zonder behuizing komt een tik linksboven anders rechtsonder terecht."
+        "BOARD_VARIANT": "Kies het bord dat je hebt. Op het gele bord zonder behuizing komt een tik linksboven anders rechtsonder terecht.",
+        "BACKLIGHT_PWM_PIN": "Stock uses the CH422G expander (no dimming). Choose GPIO6 or GPIO16 only after the backlight mod wire is soldered to that pin."
       },
       "choice_option": {
         "BOARD_VARIANT": {
