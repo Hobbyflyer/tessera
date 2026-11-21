@@ -3848,7 +3848,7 @@
     171
    ]
   },
-  "can_standby": false,
+  "can_standby": true,
   "catalog": {
    "calibrate": false,
    "choices": {
@@ -3868,7 +3868,7 @@
   },
   "chip": "ESP32-S3",
   "columns": 4,
-  "dimmable": false,
+  "dimmable": true,
   "dpi": 133,
   "features": [],
   "firmware": "0.62.0",
@@ -10693,7 +10693,7 @@
     171
    ]
   },
-  "can_standby": false,
+  "can_standby": true,
   "catalog": {
    "calibrate": false,
    "choices": {
@@ -10713,7 +10713,7 @@
   },
   "chip": "ESP32-S3",
   "columns": 4,
-  "dimmable": false,
+  "dimmable": true,
   "dpi": 133,
   "features": [],
   "firmware": "0.62.0",
@@ -13420,7 +13420,7 @@
     171
    ]
   },
-  "can_standby": false,
+  "can_standby": true,
   "catalog": {
    "calibrate": false,
    "choices": {
@@ -13440,7 +13440,7 @@
   },
   "chip": "ESP32-S3",
   "columns": 4,
-  "dimmable": false,
+  "dimmable": true,
   "dpi": 133,
   "features": [],
   "firmware": "0.62.0",

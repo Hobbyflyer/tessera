@@ -179,6 +179,18 @@ def added_icons(board):
     return found
 
 
+def has_pwm_backlight_choice(board):
+    """Whether a board has a BACKLIGHT_PWM_PIN choice that includes a real PWM pin (not just the stock expander line).
+
+    A board that can be built with the backlight on a GPIO PWM pin can dim, even though its default (stock) build has
+    BACKLIGHT_DIMMABLE false. The fallback in boards.json says dimmable so the settings panel offers the choice, and
+    the screen's own Screen features sensor corrects a stock build that reports 'none'.
+    """
+    choices = (profiles.CATALOG.get(board) or {}).get('choices') or {}
+    options = choices.get('BACKLIGHT_PWM_PIN', [])
+    return any(option not in ('EXIO2', 'NONE') for option in options)
+
+
 def shapes():
     """{entry file: shape} for every entry a screen's YAML can include, plus the board names themselves."""
     found = {}
@@ -195,12 +207,17 @@ def shapes():
                  'orientations': both,
                  'dpi': round(float(values['DISPLAY_DPI'])), 'look': values['LOOK'].strip('"'),
                  # Whether the backlight takes levels (app 0.2.105): on a board whose backlight is one line, a
-                 # brightness percentage is a number that lies, so the settings panel shows a switch instead.
-                 'dimmable': values.get('BACKLIGHT_DIMMABLE', 'true').strip('"') != 'false',
+                 # brightness percentage is a number that lies, so the settings panel shows a switch instead. A board
+                 # with a PWM-pin choice (the Waveshare 7 backlight mod, docs/WAVESHARE7.md) can be built either way;
+                 # the fallback here says dimmable so the choice is offered, and the screen's own Screen features sensor
+                 # corrects a stock build that says none.
+                 'dimmable': (values.get('BACKLIGHT_DIMMABLE', 'true').strip('"') != 'false' or
+                              has_pwm_backlight_choice(board)),
                  # Whether the screen can go dark at all (app 0.2.106): the Waveshare's backlight boost browns the
                  # board out when it switches on again, so that board has no standby and no night, and the settings
                  # panel leaves those out as the screen itself does.
-                 'can_standby': values.get('CAN_STANDBY', 'true').strip('"') != 'false',
+                 'can_standby': (values.get('CAN_STANDBY', 'true').strip('"') != 'false' or
+                                 has_pwm_backlight_choice(board)),
                  # The alert card's two line heights (firmware 0.2.103+): with the canvas, the density and the look they
                  # are what screen_alert::layout needs to size an alert's picture (picture_question.alert_box).
                  'alert': alert_lines(values),
