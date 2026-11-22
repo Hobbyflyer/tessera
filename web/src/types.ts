@@ -71,6 +71,9 @@ export type TileOptions = {
   segments?: number;
   colors?: string[];
   thresholds?: number[];
+  // A large value (watch) tile: the size of the value and its vertical position (firmware X.Y.Z+).
+  watch_size?: "auto" | "small" | "medium" | "large";
+  watch_pos?: "auto" | "top" | "middle" | "bottom";
   [key: string]: unknown;
 };
 // What a favourite plays (app 0.4.42), as Home Assistant's library names it: its content id and type, the title and the
@@ -119,6 +122,9 @@ export type PageTile = {
     mapZones?: string; mapStreets?: string; mapLook?: string; energyFlow?: string;
     // The Call tile: whom it calls and how (docs/CALLS.md).
     callTo?: string; callKind?: string;
+    // A large value (watch) tile: the size of the value and its vertical position.
+    watchSize?: "auto" | "small" | "medium" | "large";
+    watchPos?: "auto" | "top" | "middle" | "bottom";
     // The template tile's template (docs/TEXT_TILE.md): TileOptions' template.
     textTemplate?: string;
     // A calendar card's choices (firmware 0.56.0): TileOptions' style, calendars, places, words, hide_words, all_day,

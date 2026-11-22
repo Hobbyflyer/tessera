@@ -2623,6 +2623,22 @@
           "none": "Nichts"
         }
       },
+      "watch": {
+        "size": {
+          "label": "Schriftgrösse",
+          "auto": "Automatisch",
+          "small": "Klein",
+          "medium": "Mittel",
+          "large": "Gross"
+        },
+        "pos": {
+          "label": "Schriftposition",
+          "auto": "Automatisch",
+          "top": "Oben",
+          "middle": "Mitte",
+          "bottom": "Unten"
+        }
+      },
       "map": {
         "framing": {
           "label": "Zeigen",

@@ -2348,8 +2348,11 @@ inline void render_slot(size_t slot) {
     // the icon and the name and beside the unit, and the value has no letter that face lacks (it carries digits,
     // a sign, a point, a comma and a degree; a word keeps the value's own face). A 4-inch Guition has no such
     // room and keeps its face.
+    // watch_size caps the ladder: small stays at watch_font or below, medium at watch_value_font or below,
+    // large and auto allow the setpoint's digits.
     const lv_font_t *face=watch_value_font?watch_value_font:w.value_font;
-    if(setpoint_font && header+gap+lv_font_get_line_height(setpoint_font)<=content_h && text_width(value,setpoint_font)<=number_width && face_covers(setpoint_font,value))face=setpoint_font;
+    if((t.watch_size=="auto" || t.watch_size=="large") && setpoint_font && header+gap+lv_font_get_line_height(setpoint_font)<=content_h && text_width(value,setpoint_font)<=number_width && face_covers(setpoint_font,value))face=setpoint_font;
+    if(t.watch_size=="small"){face=watch_font?watch_font:w.value_font;}
     if(lv_obj_get_style_text_font(w.value,LV_PART_MAIN)!=face){set_font(w.value,face);label(w.value,value);fit_value(w.value,value,value_short,value_tail,value_room);}
     value_height=lv_font_get_line_height(face);lv_obj_set_height(w.value,value_height);
     // The icon and the name above the number while the three fit the cell, the number in the largest watch face that
@@ -2357,7 +2360,9 @@ inline void render_slot(size_t slot) {
     // Only a cell too short even for the smaller face (three rows on a 4.3 inch before, 65 px) stands the number
     // in the middle of the card with the name small in the top-left corner, and the icon goes.
     bool stacked=header+gap+value_height<=content_h;
-    if(!stacked && watch_font && watch_font!=face && header+gap+lv_font_get_line_height(watch_font)<=content_h &&
+    // An explicit vertical position forces the unstacked layout; auto keeps the existing fit rule.
+    if(t.watch_pos=="top" || t.watch_pos=="middle" || t.watch_pos=="bottom") stacked=false;
+    if(!stacked && watch_font && watch_font!=face && (t.watch_size=="auto" || t.watch_size=="small") && header+gap+lv_font_get_line_height(watch_font)<=content_h &&
        text_width(value,watch_font)<=number_width && face_covers(watch_font,value)){
       face=watch_font;set_font(w.value,face);label(w.value,value);fit_value(w.value,value,value_short,value_tail,value_room);
       value_height=lv_font_get_line_height(face);lv_obj_set_height(w.value,value_height);
@@ -2379,16 +2384,23 @@ inline void render_slot(size_t slot) {
       // above it instead of the big one pressed against the name. The line may end in the padding, never past the
       // border. Before, the big face stayed and its top space ran into the name's line.
       const int below=name_h+ui::px(2),floor_y=content_h+lv_obj_get_style_space_bottom(w.tile,LV_PART_MAIN)-2;
+      // The unstacked ladder is capped by watch_size so a fixed size does not grow past what was chosen.
       const lv_font_t *ladder[]={face,watch_font,w.value_font};
       const lv_font_t *fitted=w.value_font;
       for(const lv_font_t *f:ladder){
         if(!f || (f!=w.value_font && !face_covers(f,value)))continue;
+        if((t.watch_size=="small" && f!=watch_font && f!=w.value_font) ||
+           (t.watch_size=="medium" && f==setpoint_font))continue;
         if(below+lv_font_get_line_height(f)<=floor_y && text_width(value,f)<=number_width){fitted=f;break;}
       }
       if(fitted!=face){face=fitted;set_font(w.value,face);label(w.value,value);}
       value_height=lv_font_get_line_height(face);lv_obj_set_height(w.value,value_height);
-      value_y=std::max(below,(content_h-value_height)/2);
+      // Vertical position of the value: auto centres it; top and bottom pin it to the card's content edges.
+      if(t.watch_pos=="top") value_y=below;
+      else if(t.watch_pos=="bottom") value_y=floor_y-value_height;
+      else value_y=std::max(below,(content_h-value_height)/2);
       value_y=std::min<int>(value_y,floor_y-value_height);
+      value_y=std::max<int>(value_y,below);
       fit_value(w.value,value,value_short,value_tail,number_width);
       lv_point_t number;lv_text_get_size(&number,lv_label_get_text(w.value),lv_obj_get_style_text_font(w.value,LV_PART_MAIN),0,0,LV_COORD_MAX,LV_TEXT_FLAG_EXPAND);
       number_width=std::max(1,std::min(number_width,(int)number.x+2));

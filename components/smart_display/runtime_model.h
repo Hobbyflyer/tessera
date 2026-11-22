@@ -642,6 +642,9 @@ struct Tile {
   unsigned history_hours = 24;
   std::vector<float> history;
   bool has_history = false;
+  // A large value (watch) tile: the size of the value and its vertical position.
+  std::string watch_size = "auto";
+  std::string watch_pos = "auto";
   // When a scene, script, automation or button last ran (unix time), pre-computed by the manager.
   uint32_t last_run = 0;
   // An automation whose actions run right now (Home Assistant's `current` above 0, firmware 0.7.0+).

@@ -38,7 +38,7 @@ import UiMenuItem from "./ui/UiMenuItem.vue";
 import rules from "../model/page-rules.json";
 import { precisionOffered } from "../model/display-precision";
 import { controlChoices, controlHint, displayChoices, displayHint, goesToChoices, goesToHint, offeredChoices, presetsOffered, roomHere, sliderOffered, subChoices,
-  tapChoices, tapHint, tileControls, tileDisplay, tiltOffered, type TilePanel } from "../model/tile-options";
+  tapChoices, tapHint, tileControls, tileDisplay, tiltOffered, type TilePanel, watchPosChoices, watchSizeChoices } from "../model/tile-options";
 import { useUiStore } from "../stores/ui";
 import { useRegionStore } from "../stores/region";
 import { useEntitiesStore } from "../stores/entities";
@@ -122,6 +122,12 @@ const todoCard = computed(() => domain.value === "todo" && !key.value);
 const favoriteCard = computed(() => display.value === "favorite" && domain.value === "media_player");
 // A sensor's meter (firmware 0.56.0): its look, its range and its colours, in its own sections.
 const meterCard = computed(() => display.value === "meter" && domain.value === "sensor");
+// A large value (watch) tile: its font size and vertical position.
+const watchCard = computed(() => display.value === "watch");
+const watchSize = computed(() => current("watch_size", "auto") as string);
+const watchPos = computed(() => current("watch_pos", "auto") as string);
+const watchSizeList = computed(() => watchSizeChoices(props.tile, panel.value));
+const watchPosList = computed(() => watchPosChoices(props.tile, panel.value));
 // A sensor's display precision: Home Assistant's own setting of the entity, so the same row on any of its cards, a key's too.
 const precisionShown = computed(() => precisionOffered(props.tile.entity, entities.liveOf(props.tile.entity)));
 // How the energy card shows power along a line: running dots, or calm lines that grow with it and an arrow each.
@@ -300,6 +306,13 @@ const backgroundName = computed(() => inv.inventory.backgrounds?.[props.tile.opt
       <PropRow v-if="lookShown && tile.entity !== 'screen.settings' && !mapTile && !energyTile" :label="t('editor.tile.display.label')" icon="eye-outline" :hint="shownHint && !shownHint.warn ? shownHint.text : undefined">
         <ChoiceField :choices="displays" :value="display" :tile="tile" preview-key="display" :aria-label="t('editor.tile.display.label')" @pick="(v) => setTileOption(tile, 'display', v)" />
         <template v-if="shownHint?.warn" #note><small class="help warn">{{ shownHint.text }}</small></template>
+      </PropRow>
+      <!-- A large value (watch) tile: the size of the value and its vertical position. -->
+      <PropRow v-if="lookShown && watchCard" :label="t('editor.tile.watch.size.label')" icon="text-short">
+        <ChoiceField :choices="watchSizeList" :value="watchSize" :tile="tile" preview-key="watch_size" :aria-label="t('editor.tile.watch.size.label')" @pick="(v) => setTileOption(tile, 'watch_size', v)" />
+      </PropRow>
+      <PropRow v-if="lookShown && watchCard" :label="t('editor.tile.watch.pos.label')" icon="arrow-up">
+        <ChoiceField :choices="watchPosList" :value="watchPos" :tile="tile" preview-key="watch_pos" :aria-label="t('editor.tile.watch.pos.label')" @pick="(v) => setTileOption(tile, 'watch_pos', v)" />
       </PropRow>
       <!-- A bedside clock and its keys have no second line: the clock draws the time, a key its name alone. A meter
            writes its value and name itself. -->

@@ -960,6 +960,9 @@ std::string receive(const std::string &payload) {
       tile.meter = std::move(m);
     }
     tile.inline_control = string(options["inline"]); if (tile.inline_control.empty()) tile.inline_control="none";
+    // A large value (watch) tile: the size of the value and its vertical position.
+    tile.watch_size = string(options["watch_size"], 8); if (tile.watch_size.empty()) tile.watch_size = "auto";
+    tile.watch_pos = string(options["watch_pos"], 8); if (tile.watch_pos.empty()) tile.watch_pos = "auto";
     // What the second line says (firmware 0.2.90+); "auto" is the line the screen works out itself, as before.
     tile.subtitle = string(options["sub"], 96); if (tile.subtitle.empty()) tile.subtitle="auto";
     // Direct controls (0.2.19+): the manager sends only the set a wide card really shows.

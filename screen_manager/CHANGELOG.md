@@ -1,4 +1,4 @@
-## 0.4.101
+## 0.4.102
 
 - **Waveshare 7 inch: built-in backlight PWM mod.** New screen now offers the backlight mod as a choice: stock (CH422G EXIO2), or GPIO6/GPIO16 for PWM dimming after the hardware mod wire is soldered. The shared package builds the LEDC output and keeps the enable line high automatically; standby, night mode and alert flashes are enabled with the mod. The board catalog now marks the Waveshare 7 as dimmable so the settings panel offers the brightness row before the screen's own Screen features sensor is read.
 

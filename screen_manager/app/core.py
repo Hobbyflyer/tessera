@@ -1401,7 +1401,9 @@ TILE_EVENT_OPTIONS = {'size': 'size', 'controls': 'controls', 'display': 'displa
                       # A to-do card: its order and what it shows and offers (todo_feed.validate).
                       **{key: key for key in todo_feed.KEYS},
                       # A sensor's meter (firmware 0.56.0): its look, its range and its colours (meter.validate).
-                      **{key: key for key in meter.KEYS}}
+                      **{key: key for key in meter.KEYS},
+                      # A large value (watch) tile: the size of the value and its vertical position.
+                      'watch_size': 'watch_size', 'watch_pos': 'watch_pos'}
 TILE_SIZES = {'full': 'full', 'fullscreen': 'full', 'full screen': 'full', 'full-screen': 'full', 'page': 'full', 'whole page': 'full',
               'wide': 'wide', 'double': 'wide', 'large': 'wide', 'big': 'wide',
               'single': 'single', 'small': 'single', 'normal': 'single', 'tall': 'tall', 'high': 'tall', 'square': 'square'}
@@ -1981,7 +1983,7 @@ def validate_layout(data, stored=False, grid=DEFAULT_GRID):
             continue
         if 'options' in tile:
             options = tile['options']
-            if not isinstance(options, dict) or set(options) - {'call_to', 'call_kind', 'tap', 'display', 'inline', 'history_hours', 'background', 'size', 'icon', 'controls', 'action', 'refresh', 'sub', 'fit', 'overlay', 'guard', 'tilt_open', 'send_after', 'flow', light_presets.OPTION, light_presets.LEVELS, text_tile.OPTION, *MAP_OWN, *FAVORITE_OWN, *calendar_feed.KEYS, *todo_feed.KEYS, *meter.KEYS}:
+            if not isinstance(options, dict) or set(options) - {'call_to', 'call_kind', 'tap', 'display', 'inline', 'history_hours', 'background', 'size', 'icon', 'controls', 'action', 'refresh', 'sub', 'fit', 'overlay', 'guard', 'tilt_open', 'send_after', 'flow', 'watch_size', 'watch_pos', light_presets.OPTION, light_presets.LEVELS, text_tile.OPTION, *MAP_OWN, *FAVORITE_OWN, *calendar_feed.KEYS, *todo_feed.KEYS, *meter.KEYS}:
                 raise ValueError(t('addon.errors.layout.unknown_settings'))
             # A calendar card's choices (firmware 0.56.0): its calendars, its filters, its look; other tiles have none.
             if tile['entity'].startswith('calendar.'):
@@ -2164,6 +2166,15 @@ def validate_layout(data, stored=False, grid=DEFAULT_GRID):
                 options = {k: v for k, v in options.items() if k not in ('inline', 'controls', 'action') and not (k == 'tap' and v == 'action')}
             elif set(options) & set(FAVORITE_OWN):
                 options = {k: v for k, v in options.items() if k not in FAVORITE_OWN}
+            # A large value (watch) tile: its font size and vertical position, only while it is the watch face.
+            if options.get('display') == 'watch':
+                if 'watch_size' in options and options['watch_size'] not in ('auto', 'small', 'medium', 'large'):
+                    raise ValueError(t('addon.errors.layout.invalid_setting', setting='watch_size'))
+                if 'watch_pos' in options and options['watch_pos'] not in ('auto', 'top', 'middle', 'bottom'):
+                    raise ValueError(t('addon.errors.layout.invalid_setting', setting='watch_pos'))
+                options = {k: v for k, v in options.items() if k not in ('watch_size', 'watch_pos') or v != 'auto'}
+            elif 'watch_size' in options or 'watch_pos' in options:
+                options = {k: v for k, v in options.items() if k not in ('watch_size', 'watch_pos')}
             if options.get('display') == 'watch' and options.get('inline') == 'slider':
                 raise ValueError(t('addon.errors.layout.watch_or_slider'))
             if 'controls' in options:

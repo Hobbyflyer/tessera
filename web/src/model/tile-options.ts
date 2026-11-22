@@ -26,7 +26,8 @@ const APPEARANCE = { display: "display", icon: "icon", background: "background",
   calendarStartView: "start_view", calendarWeekStart: "week_start", calendarHours: "hours", calendarWeekNumbers: "week_numbers",
   calendarBookOn: "book_on", calendarBookPlace: "book_place", calendarBookTitle: "book_title",
   todoOrder: "todo_order", todoCompleted: "todo_completed", todoDue: "todo_due", todoAdd: "todo_add", todoSuggest: "todo_suggest", todoClear: "todo_clear",
-  meterStyle: "meter", meterMin: "min", meterMax: "max", meterSegments: "segments", meterColors: "colors", meterThresholds: "thresholds" } as const;
+  meterStyle: "meter", meterMin: "min", meterMax: "max", meterSegments: "segments", meterColors: "colors", meterThresholds: "thresholds",
+  watchSize: "watch_size", watchPos: "watch_pos" } as const;
 const INTERACTION = ["tap", "inline", "controls", "action", "play", "speaker", "shuffle", "repeat", "presets", "preset_levels"] as const;
 const PICTURE_OWN = ["refresh", ...Object.keys(rules.picture)];
 // A map card's own choices (app 0.4.33); its name on the picture is the live picture's `overlay`.
@@ -56,7 +57,9 @@ export const DEFAULTS: Record<string, unknown> = { sub: "auto", fit: rules.pictu
   ...Object.fromEntries(Object.entries(CALENDAR_DEFAULTS).filter(([key]) => !["places", "words", "hide_words", "calendars"].includes(key))),
   ...TODO_DEFAULTS,
   // A sensor's meter (firmware 0.56.0, meter.validate): the ring and one segment are what nothing means.
-  meter: rules.meter.styles[0], segments: rules.meter.segments[0], tilt_open: "100" };
+  meter: rules.meter.styles[0], segments: rules.meter.segments[0], tilt_open: "100",
+  // A large value (watch) tile: automatic font and position are not stored.
+  watch_size: "auto", watch_pos: "auto" };
 
 const pageTile = (entity: string) => /^screen\.page_\d+$/.test(entity);
 
@@ -104,6 +107,8 @@ export function canonicalOptions(entity: string, options: TileOptions = {}, key 
   for (const field of ["week_start", "hours", "week_numbers", "book_on", "book_place", "book_title"]) if (out[field] === CALENDAR_DEFAULTS[field] || out[field] === null) delete out[field];
   // A to-do card keeps its choices; no other tile has them.
   if (!entity.startsWith("todo.")) for (const field of TODO_OWN) delete out[field];
+  // A large value (watch) tile keeps its font size and position only while it is the watch face.
+  if (out.display !== "watch") { delete out.watch_size; delete out.watch_pos; }
   // A sensor's meter (firmware 0.56.0) keeps its look, its range, its colours and its thresholds while it is the meter;
   // a default is never stored (model/meter.ts, meter.validate).
   canonicalMeter(entity, out);
@@ -252,6 +257,20 @@ export function displayHint(tile: Tile, panel: TilePanel): Hint | null {
   const warn = !(display === "live" && filled) && !(display === "cover" && supports(0, 2, 78)) && !(display === "favorite" && supports(0, 24, 0))
     && !(display === "map" && supports(0, 20, 0)) && !(clockFace(tile) && supports(0, 3, 6));
   return { text, warn };
+}
+
+// A large value (watch) tile: the size of the value and its vertical position.
+const WATCH_SIZES: [string, string][] = [["auto", "editor.tile.watch.size.auto"], ["small", "editor.tile.watch.size.small"],
+  ["medium", "editor.tile.watch.size.medium"], ["large", "editor.tile.watch.size.large"]];
+const WATCH_POSITIONS: [string, string][] = [["auto", "editor.tile.watch.pos.auto"], ["top", "editor.tile.watch.pos.top"],
+  ["middle", "editor.tile.watch.pos.middle"], ["bottom", "editor.tile.watch.pos.bottom"]];
+/** The font sizes a watch tile may use: automatic or a fixed step of the board's text fonts. */
+export function watchSizeChoices(tile: Tile, panel: TilePanel) {
+  return offer(tile, panel, "watch_size", WATCH_SIZES.map(([key, label]) => [key, t(label)] as [string, string]), tile.options?.watch_size ?? "auto");
+}
+/** The vertical positions a watch tile's value may take. */
+export function watchPosChoices(tile: Tile, panel: TilePanel) {
+  return offer(tile, panel, "watch_pos", WATCH_POSITIONS.map(([key, label]) => [key, t(label)] as [string, string]), tile.options?.watch_pos ?? "auto");
 }
 
 /** The control set the panel shows as chosen: the small slider's kind on a taller card that has one, else the tile's own

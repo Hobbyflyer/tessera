@@ -30,6 +30,10 @@ const CALENDAR_MORE = ['calendarWeekStart', 'calendarHours', 'calendarWeekNumber
 const TODO_FIELDS = ['todoOrder', 'todoCompleted', 'todoDue', 'todoAdd', 'todoSuggest', 'todoClear'] as const;
 // A sensor's meter (firmware 0.56.0, meter.validate), as the page document names it.
 const METER_FIELDS = ['meterStyle', 'meterMin', 'meterMax', 'meterSegments', 'meterColors', 'meterThresholds'] as const;
+// A large value (watch) tile, as core.validate_layout checks it: its font size and vertical position.
+const WATCH_SIZES = ['auto', 'small', 'medium', 'large'] as const;
+const WATCH_POSITIONS = ['auto', 'top', 'middle', 'bottom'] as const;
+const WATCH_FIELDS = ['watchSize', 'watchPos'] as const;
 const entity = (value: any, domains: string[]) => typeof value === 'string' && value.length <= 120 &&
   matches(/^[a-z0-9_]+\.[a-z0-9_]+$/, value) && domains.includes(value.split('.')[0]);
 // Any icon's name: which ones a screen can draw is its own (docs/ICONS.md), and the add-on checks the name.
@@ -115,7 +119,7 @@ export function validatePageShape(layout: PageLayout, plugins = false) {
       fields(tile.placement, ['row', 'column', 'columns', 'rows']);
       fields(tile.appearance, ['label', 'presentation', 'display', 'icon', 'background', 'historyHours', 'refresh', 'subtitle', 'fit', 'overlay',
         'mapEntities', 'mapFraming', 'mapDistance', 'mapFollow', 'mapMarkers', 'mapNames', 'mapZones', 'mapStreets', 'mapLook', 'energyFlow', 'textTemplate',
-        ...CALENDAR_FIELDS, ...CALENDAR_MORE, ...TODO_FIELDS, ...METER_FIELDS], ['label']);
+        ...CALENDAR_FIELDS, ...CALENDAR_MORE, ...TODO_FIELDS, ...METER_FIELDS, ...WATCH_FIELDS], ['label']);
       fields(tile.interaction, ['tap', 'inline', 'controls', 'action', 'guard', 'play', 'speaker', 'shuffle', 'repeat', 'tilt_open', 'presets', 'preset_levels'], []);
       const content = tile.content;
       fields(content, ['kind', 'entityId', 'name', 'target', 'plugin', 'tile', 'options'], ['kind']);
@@ -235,6 +239,12 @@ export function validateCardOptions(tile: PageTile, entityId: string, size: stri
     const values = a.meterThresholds;
     if (values !== undefined && (!Array.isArray(values) || !values.length || values.length !== segments - 1 || !values.every(number) ||
         values.some((value, i) => i > 0 && values[i - 1] >= value))) fail();
+  }
+  // A large value (watch) tile: its font size and vertical position, only while it is the watch face.
+  if (WATCH_FIELDS.some((key) => a[key] !== undefined)) {
+    if (a.display !== 'watch') fail('normalization');
+    if (a.watchSize !== undefined && (!WATCH_SIZES.includes(a.watchSize) || a.watchSize === 'auto')) fail('normalization');
+    if (a.watchPos !== undefined && (!WATCH_POSITIONS.includes(a.watchPos) || a.watchPos === 'auto')) fail('normalization');
   }
   // A favourite (app 0.4.42): what it plays and its speaker, and its own shuffle and repeat (app 0.4.84), with the
   // favourite alone.

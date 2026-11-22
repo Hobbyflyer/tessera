@@ -2172,6 +2172,22 @@
           "none": "Nothing"
         }
       },
+      "watch": {
+        "size": {
+          "label": "Number size",
+          "auto": "Automatic",
+          "small": "Small",
+          "medium": "Medium",
+          "large": "Large"
+        },
+        "pos": {
+          "label": "Number position",
+          "auto": "Automatic",
+          "top": "Top",
+          "middle": "Middle",
+          "bottom": "Bottom"
+        }
+      },
       "map": {
         "framing": {
           "label": "Show",
